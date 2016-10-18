@@ -1,0 +1,4 @@
+[report]
+omit =
+    conftest.py
+    manage.py
