@@ -2,4 +2,5 @@
 omit =
     tests/*
     conftest.py
+    config.py
     manage.py
