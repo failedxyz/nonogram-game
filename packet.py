@@ -24,7 +24,7 @@ class ConnectionPacket(Packet):
         self.client = client
 
     def handle(self):
+        session["uid"] = self.client.uid
         print "SESSION", session
-        session["SHIET"] = "SHIET"
         obj = dict(key=self.client.connection_key)
         emit("data", "001%s" % json.dumps(obj))
