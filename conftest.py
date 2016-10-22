@@ -1,6 +1,6 @@
 import pytest
 
-from app import app as nonogram_app
+from app import app as nonogram_app, socketio as nonogram_socket
 from config import Config as AppConfig
 from models import db as nonogram_db
 
@@ -21,9 +21,14 @@ def app(request):
     return app
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="class")
 def client(app):
     return app.test_client()
+
+
+@pytest.fixture(scope="class")
+def socket(app):
+    return nonogram_socket.test_client(app)
 
 
 @pytest.fixture(scope="class")

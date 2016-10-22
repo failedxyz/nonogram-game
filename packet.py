@@ -1,8 +1,6 @@
-import json
 from cStringIO import StringIO
 
 from flask import session
-from flask_socketio import emit
 
 from client import Client
 from data import clients
@@ -27,4 +25,4 @@ class ConnectionPacket(Packet):
         session["uid"] = self.client.uid
         print "SESSION", session
         obj = dict(key=self.client.connection_key)
-        emit("data", "001%s" % json.dumps(obj))
+        return 1, obj

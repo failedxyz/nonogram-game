@@ -1,5 +1,7 @@
+import json
+
 from flask import Flask, session
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, emit
 
 from config import Config
 from data import clients
@@ -13,7 +15,8 @@ socketio = SocketIO(app)
 @socketio.on("data")
 def process(data):
     packet = Packet.parse(data)
-    packet.handle()
+    header, object = packet.handle()
+    emit("data", "{:0>3}{}".format(header, json.dumps(object)))
 
 
 @socketio.on("disconnect")
