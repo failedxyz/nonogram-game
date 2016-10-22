@@ -97,3 +97,5 @@ ENV/
 # Rope project settings
 .ropeproject
 
+# Secret Key
+.secret_key
