@@ -1,5 +1,3 @@
-from Crypto.Cipher import AES
-
 import util
 from data import clients
 
@@ -10,4 +8,3 @@ class Client:
         while self.uid in clients:
             self.uid = util.generate_string()
         self.connection_key = util.generate_string()
-        self.aes = AES.new(self.connection_key)

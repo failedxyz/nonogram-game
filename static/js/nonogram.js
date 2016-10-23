@@ -4,11 +4,24 @@ var channels = [];
 
 var encrypt = function (object) {
     var data = JSON.stringify(object);
-    return CryptoJS.AES.encrypt(data, connection_key).toString();
+    var iv = CryptoJS.lib.WordArray.random(16);
+    var encrypted = CryptoJS.AES.encrypt(data, CryptoJS.enc.Utf8.parse(connection_key), {
+        iv: iv
+    });
+    return iv.concat(encrypted.ciphertext).toString(CryptoJS.enc.Base64);
 };
 
 var decrypt = function (ciphertext) {
-    var data = CryptoJS.AES.decrypt(ciphertext, connection_key).toString(CryptoJS.enc.Utf8);
+    ciphertext = CryptoJS.enc.Base64.parse(ciphertext);
+    var iv = ciphertext.clone();
+    iv.sigBytes = 16;
+    iv.clamp();
+    ciphertext.words.splice(0, 4);
+    ciphertext.sigBytes -= 16;
+    var decrypted = CryptoJS.AES.decrypt({ciphertext: ciphertext}, connection_key, {
+        iv: iv
+    });
+    var data = decrypted.toString(CryptoJS.enc.Utf8);
     return JSON.parse(data);
 };
 

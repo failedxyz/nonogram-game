@@ -15,8 +15,10 @@ socketio = SocketIO(app)
 @socketio.on("data")
 def process(data):
     packet = Packet.parse(data)
-    header, object = packet.handle()
-    emit("data", "{:0>3}{}".format(header, json.dumps(object)))
+    result = packet.handle()
+    if result:
+        header, object = result
+        emit("data", "{:0>3}{}".format(header, json.dumps(object)))
 
 
 @socketio.on("disconnect")

@@ -8,6 +8,10 @@ from util import decrypt
 
 
 class Packet:
+    def handle(self):
+        "Do nothing."
+        pass
+
     @classmethod
     def parse(cls, data):
         stream = StringIO(data)
@@ -17,11 +21,13 @@ class Packet:
             clients[client.uid] = client
             return ConnectionPacket(client)
         client = clients[session["uid"]]
-        print "CLIENT", client.connection_key
-        data = decrypt(stream.read(), client.aes)
+        raw_data = stream.read()
+        print "CLIENT", client.connection_key, raw_data
+        data = decrypt(raw_data, client.connection_key)
         print "DATA", data
         if pid == 2:
             print data
+        return Packet()
 
 
 class ConnectionPacket(Packet):
