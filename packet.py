@@ -4,6 +4,7 @@ from flask import session
 
 from client import Client
 from data import clients
+from util import decrypt
 
 
 class Packet:
@@ -15,6 +16,12 @@ class Packet:
             client = Client()
             clients[client.uid] = client
             return ConnectionPacket(client)
+        client = clients[session["uid"]]
+        print "CLIENT", client.connection_key
+        data = decrypt(stream.read(), client.aes)
+        print "DATA", data
+        if pid == 2:
+            print data
 
 
 class ConnectionPacket(Packet):

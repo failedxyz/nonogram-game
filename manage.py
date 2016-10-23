@@ -12,7 +12,7 @@ manager.add_command("db", MigrateCommand)
 
 @manager.command
 def runserver():
-    socketio.run(app, host="0.0.0.0", port=5000, use_reloader=True)
+    socketio.run(app, host="0.0.0.0", port=4000, use_reloader=True)
 
 
 if __name__ == "__main__":
