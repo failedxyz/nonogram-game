@@ -3,7 +3,7 @@ from data import clients
 
 
 class Client:
-    def __init__(self):
+    def __init__(self, add=False):
         self.uid = util.generate_string()
         while self.uid in clients:
             self.uid = util.generate_string()

@@ -2,8 +2,7 @@ const REQUEST_INFO_INTERVAL = 5000;
 var socket = io.connect("/"), connection_key, last_update_time = Date.now(), requested = false;
 var channels = [];
 
-var encrypt = function (object) {
-    var data = JSON.stringify(object);
+var encrypt = function (data) {
     var iv = CryptoJS.lib.WordArray.random(16);
     var encrypted = CryptoJS.AES.encrypt(data, CryptoJS.enc.Utf8.parse(connection_key), {
         iv: iv
@@ -18,17 +17,17 @@ var decrypt = function (ciphertext) {
     iv.clamp();
     ciphertext.words.splice(0, 4);
     ciphertext.sigBytes -= 16;
-    var decrypted = CryptoJS.AES.decrypt({ciphertext: ciphertext}, connection_key, {
+    var decrypted = CryptoJS.AES.decrypt({ciphertext: ciphertext}, CryptoJS.enc.Utf8.parse(connection_key), {
         iv: iv
     });
     var data = decrypted.toString(CryptoJS.enc.Utf8);
-    return JSON.parse(data);
+    return data;
 };
 
 var update_loop = function () {
     if (connection_key) {
         if (!requested && Date.now() - last_update_time > REQUEST_INFO_INTERVAL) {
-            socket.emit("data", "002" + encrypt({}));
+            socket.emit("data", "002" + encrypt("hei"));
             requested = true;
         }
     }
@@ -49,6 +48,7 @@ socket.on("connect", function () {
                 update_loop();
                 break;
             case 2:
+                channels = body;
                 last_update_time = Date.now();
                 requested = false;
                 break;
