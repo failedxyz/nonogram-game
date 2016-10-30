@@ -27,7 +27,7 @@ class Packet:
         data = decrypt(raw_data, client.connection_key)
         if pid == 2:
             return ChannelInfoPacket(client)
-        return Packet()
+        return Packet(client)
 
 
 class ConnectionPacket(Packet):
