@@ -9,7 +9,7 @@ class TestGeneral:
     def test_process_data(self, socket):
         socket.emit("data", "001")
         received = socket.get_received()
-        assert len(received)
+        assert received
         data = received[0]
         assert data["name"] == "data"
         assert data["args"][0].find("001") == 0
