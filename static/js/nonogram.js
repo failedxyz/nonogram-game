@@ -25,7 +25,10 @@ var decrypt = function (ciphertext) {
 var app = angular.module("nonogram", []);
 app.controller("main-controller", ["$scope", function ($scope) {
     var nonogram = this;
+    window.nonogram = nonogram;
+    nonogram.available_channels = [];
     nonogram.channels = [];
+    nonogram.joined = false;
     nonogram.last_update_time = Date.now();
     nonogram.requested = false;
     nonogram.socket = io.connect("/");
@@ -66,6 +69,18 @@ app.controller("main-controller", ["$scope", function ($scope) {
                     update_loop();
                     break;
                 case 2:
+                    nonogram.available_channels = body;
+                    var to_join = [];
+                    for (var i = 0; i < nonogram.available_channels.length; i += 1) {
+                        if (nonogram.available_channels[i].autojoin) {
+                            to_join.push(nonogram.available_channels[i].name);
+                        }
+                    }
+                    nonogram.send("003", JSON.stringify(to_join));
+                    nonogram.last_update_time = Date.now();
+                    nonogram.requested = false;
+                    break;
+                case 3:
                     var currently_active = nonogram.channels.length ? nonogram.channels[0].name : null;
                     for (var i = 0; i < nonogram.channels.length; i += 1) {
                         if (currently_active == null || nonogram.channels[i].active) {
@@ -73,6 +88,8 @@ app.controller("main-controller", ["$scope", function ($scope) {
                         }
                     }
                     nonogram.channels = body;
+                    if (nonogram.channels.length)
+                        nonogram.joined = true;
                     if (currently_active != null) {
                         for (var i = 0; i < nonogram.channels.length; i += 1) {
                             if (nonogram.channels[i].name == currently_active) {
@@ -82,8 +99,6 @@ app.controller("main-controller", ["$scope", function ($scope) {
                     } else if (nonogram.channels.length > 0) {
                         nonogram.channels[0].active = true;
                     }
-                    nonogram.last_update_time = Date.now();
-                    nonogram.requested = false;
                     break;
             }
             $scope.$apply();

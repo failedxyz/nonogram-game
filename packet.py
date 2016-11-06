@@ -1,3 +1,4 @@
+import json
 from cStringIO import StringIO
 
 from flask import session
@@ -8,8 +9,10 @@ from util import decrypt
 
 
 class Packet:
-    def __init__(self, client):
+    def __init__(self, client, **kwargs):
         self.client = client
+        for arg in kwargs:
+            setattr(self, arg, kwargs[arg])
 
     def handle(self):
         raise NotImplementedError("%s handler not implemented." % self.__class__.__name__)
@@ -27,6 +30,8 @@ class Packet:
         data = decrypt(raw_data, client.connection_key)
         if pid == 2:
             return ChannelInfoPacket(client)
+        elif pid == 3:
+            return ChannelJoinPacket(client, data=data)
         return Packet(client)
 
 
@@ -41,10 +46,15 @@ class ChannelInfoPacket(Packet):
     def handle(self):
         result = []
         for cname in channels:
-            channel = channels[cname]
-            result.append({
-                "name": cname,
-                "autojoin": channel.autojoin,
-                "type": channel.type
-            })
+            result.append(channels[cname].json())
         return 2, result
+
+
+class ChannelJoinPacket(Packet):
+    def handle(self):
+        if not self.data: return
+        to_join = json.loads(self.data)
+        for channel in to_join:
+            if channel in channels and self.client not in channels[channel]:
+                channels[channel].add_client(self.client)
+        return 3, map(lambda c: c.json(), self.client.channels)

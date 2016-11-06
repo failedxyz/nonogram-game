@@ -33,10 +33,9 @@ def process(data):
         emit("data", "{:0>3}{}".format(header, output))
 
 
-
 @socketio.on("disconnect")
 def disconnect():
-	if "uid" in session:
-	    uid = session["uid"]
-	    if uid in clients:
-	        del clients[uid]
+    if "uid" in session:
+        uid = session["uid"]
+        if uid in clients:
+            del clients[uid]

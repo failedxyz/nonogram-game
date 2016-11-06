@@ -1,9 +1,14 @@
 import base64
+import logging
 import random
 from string import hexdigits
 
 from Crypto import Random
 from Crypto.Cipher import AES
+
+logging.basicConfig()
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 BLOCK_SIZE = 16
 
