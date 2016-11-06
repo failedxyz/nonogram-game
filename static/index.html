@@ -3,10 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <title>Nonogram</title>
-</head>
-<body>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"/>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js" integrity="sha384-R4/ztc4ZlRqWjqIuvf6RX5yb/v90qNGx6fS48N0tRxiGkqveZETq72KgDVJCp2TC" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js" integrity="sha384-V6/dyDFv85/V/Ktq3ez5B80/c9ZY7jV9c/319rqwNOz3h9CIPdd2Eve0UQBYMMr/" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js" integrity="sha384-YkYpnhy3j3+zc3fQvzlbh4WGwDgt+06gsGsaApwM1O3IKIsKJk61C0Lr6YvbovUV" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.5.0/socket.io.min.js" integrity="sha384-5BOyxpYCWHdXC3U6EkarTTAQyKavav9DyvqSDWUvnYd3JSniYm9yo/2KKspyoVMn" crossorigin="anonymous"></script>
     <script src="/js/nonogram.js"></script>
+</head>
+<body ng-app="nonogram">
+    <div class="container" ng-controller="main-controller as nonogram">
+        <div class="page-header">
+            <h1>Nonogram Game</h1>
+        </div>
+        <ul class="nav nav-tabs" role="tablist" id="tabs" ng-if="nonogram.channels.length">
+            <li role="presentation" ng-repeat="channel in nonogram.channels" ng-class="channel.active ? 'active' : ''">
+                <a href="#ranked" aria-controls="{{ channel.name }}" role="tab" data-toggle="tab">#{{ channel.name }}</a>
+            </li>
+        </ul>
+        <div class="tab-content" ng-if="nonogram.channels.length">
+        </div>
+        <center ng-if="!nonogram.channels.length">
+            Loading...
+        </center>
+    </div>
 </body>
 </html>

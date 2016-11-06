@@ -44,6 +44,7 @@ class ChannelInfoPacket(Packet):
             channel = channels[cname]
             result.append({
                 "name": cname,
-                "autojoin": channel.autojoin
+                "autojoin": channel.autojoin,
+                "type": channel.type
             })
         return 2, result

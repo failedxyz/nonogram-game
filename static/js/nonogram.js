@@ -1,6 +1,4 @@
 const REQUEST_INFO_INTERVAL = 5000;
-var socket = io.connect("/"), connection_key, last_update_time = Date.now(), requested = false;
-var channels = [];
 
 var encrypt = function (data) {
     var iv = CryptoJS.lib.WordArray.random(16);
@@ -24,34 +22,71 @@ var decrypt = function (ciphertext) {
     return data;
 };
 
-var update_loop = function () {
-    if (connection_key) {
-        if (!requested && Date.now() - last_update_time > REQUEST_INFO_INTERVAL) {
-            socket.emit("data", "002" + encrypt("hei"));
-            requested = true;
-        }
-    }
-    requestAnimationFrame(update_loop);
-};
+var app = angular.module("nonogram", []);
+app.controller("main-controller", ["$scope", function ($scope) {
+    var nonogram = this;
+    nonogram.channels = [];
+    nonogram.last_update_time = Date.now();
+    nonogram.requested = false;
+    nonogram.socket = io.connect("/");
 
-socket.on("connect", function () {
-    socket.emit("data", "001");
-    socket.on("data", function (data) {
-        var header = parseInt(data.substring(0, 3));
-        var raw_body = data.substring(3);
-        if (header > 1)
-            raw_body = decrypt(raw_body);
-        var body = JSON.parse(raw_body);
-        switch (header) {
-            case 1:
-                connection_key = body["key"];
-                update_loop();
-                break;
-            case 2:
-                channels = body;
-                last_update_time = Date.now();
-                requested = false;
-                break;
+    nonogram.send = function (header, message) {
+        nonogram.socket.emit("data", header + encrypt(message));
+        console.log(">>", parseInt(header) + ":", message);
+        $scope.$apply();
+    };
+
+    var update_loop = function () {
+        if (connection_key) {
+            if (!nonogram.joined) {
+                if (!nonogram.requested && Date.now() - nonogram.last_update_time > REQUEST_INFO_INTERVAL) {
+                    nonogram.send("002", "hei");
+                    nonogram.requested = true;
+                }
+            } else {
+
+            }
         }
+        $scope.$apply();
+        requestAnimationFrame(update_loop);
+    };
+
+    nonogram.socket.on("connect", function () {
+        nonogram.socket.emit("data", "001");
+        nonogram.socket.on("data", function (data) {
+            var header = parseInt(data.substring(0, 3));
+            var raw_body = data.substring(3);
+            if (header > 1)
+                raw_body = decrypt(raw_body);
+            var body = JSON.parse(raw_body);
+            console.log("<<", header, raw_body);
+            switch (header) {
+                case 1:
+                    connection_key = body["key"];
+                    update_loop();
+                    break;
+                case 2:
+                    var currently_active = nonogram.channels.length ? nonogram.channels[0].name : null;
+                    for (var i = 0; i < nonogram.channels.length; i += 1) {
+                        if (currently_active == null || nonogram.channels[i].active) {
+                            currently_active = nonogram.channels[i].name;
+                        }
+                    }
+                    nonogram.channels = body;
+                    if (currently_active != null) {
+                        for (var i = 0; i < nonogram.channels.length; i += 1) {
+                            if (nonogram.channels[i].name == currently_active) {
+                                nonogram.channels[i].active = true;
+                            }
+                        }
+                    } else if (nonogram.channels.length > 0) {
+                        nonogram.channels[0].active = true;
+                    }
+                    nonogram.last_update_time = Date.now();
+                    nonogram.requested = false;
+                    break;
+            }
+            $scope.$apply();
+        });
     });
-});
+}]);
