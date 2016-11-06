@@ -11,10 +11,12 @@ class Config:
             self.TESTING = True
             self.WTF_CSRF_ENABLED = False
 
-    def _get_database_url(self):
+    @staticmethod
+    def _get_database_url():
         return os.getenv("DATABASE_URL", "")
 
-    def _load_secret_key(self):
+    @staticmethod
+    def _load_secret_key():
         key = os.getenv("SECRET_KEY")
         if key:
             return key

@@ -4,6 +4,19 @@
     <meta charset="UTF-8">
     <title>Nonogram</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"/>
+    <style>
+        .tab-content {
+            padding: 15px;
+        }
+
+        .tab-content > .tab-pane {
+            display: none;
+        }
+
+        .tab-content > .active {
+            display: block;
+        }
+    </style>
     <script src="https://code.jquery.com/jquery-2.1.4.min.js" integrity="sha384-R4/ztc4ZlRqWjqIuvf6RX5yb/v90qNGx6fS48N0tRxiGkqveZETq72KgDVJCp2TC" crossorigin="anonymous"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js" integrity="sha384-V6/dyDFv85/V/Ktq3ez5B80/c9ZY7jV9c/319rqwNOz3h9CIPdd2Eve0UQBYMMr/" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
@@ -18,10 +31,34 @@
         </div>
         <ul class="nav nav-tabs" role="tablist" id="tabs" ng-if="nonogram.channels.length">
             <li role="presentation" ng-repeat="channel in nonogram.channels" ng-class="channel.active ? 'active' : ''">
-                <a href="#ranked" aria-controls="{{ channel.name }}" role="tab" data-toggle="tab">#{{ channel.name }}</a>
+                <a href="#{{ channel.name }}" aria-controls="{{ channel.name }}" role="tab" data-toggle="tab">#{{ channel.name }}</a>
             </li>
         </ul>
         <div class="tab-content" ng-if="nonogram.channels.length">
+            <div role="tabpanel" ng-repeat="channel in nonogram.channels" class="tab-pane" ng-class="channel.active ? 'active' : ''" id="{{ channel.name }}" style="height:50vh;">
+                <div ng-if="channel.type == 'chat'">
+                    <table class="table table-bordered" style="height:100%;">
+                        <tr>
+                            <td rowspan="2" style="height:100%;">
+                                Online Users:
+                                <ul>
+                                    <li ng-repeat="user in channel.users">
+                                        <a href="javascript:void(0);">{{ user.username }}</a>
+                                    </li>
+                                </ul>
+                            </td>
+                            <td>
+                                Backlog:
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input type="text" id="chatbox" class="form-control" autocomplete="off">
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
         </div>
         <center ng-if="!nonogram.channels.length">
             Loading...

@@ -3,16 +3,20 @@ from cStringIO import StringIO
 
 from flask import session
 
-from client import Client
 from data import clients, channels
+from objects import Client, Channel
 from util import decrypt
 
 
 class Packet:
     def __init__(self, client, **kwargs):
-        self.client = client
+        self._client = client
         for arg in kwargs:
             setattr(self, arg, kwargs[arg])
+
+    @property
+    def client(self):
+        return Client.get_by_id(self._client)
 
     def handle(self):
         raise NotImplementedError("%s handler not implemented." % self.__class__.__name__)
@@ -24,15 +28,15 @@ class Packet:
         if pid == 1:
             client = Client()
             clients[client.uid] = client
-            return ConnectionPacket(client)
+            return ConnectionPacket(client.uid)
         client = clients[session["uid"]]
         raw_data = stream.read()
         data = decrypt(raw_data, client.connection_key)
         if pid == 2:
-            return ChannelInfoPacket(client)
+            return ChannelInfoPacket(client.uid)
         elif pid == 3:
-            return ChannelJoinPacket(client, data=data)
-        return Packet(client)
+            return ChannelJoinPacket(client.uid, data=data)
+        return Packet(client.uid)
 
 
 class ConnectionPacket(Packet):
@@ -55,6 +59,8 @@ class ChannelJoinPacket(Packet):
         if not self.data: return
         to_join = json.loads(self.data)
         for channel in to_join:
-            if channel in channels and self.client not in channels[channel]:
-                channels[channel].add_client(self.client)
-        return 3, map(lambda c: c.json(), self.client.channels)
+            if channel in channels and self.client not in Channel.get_by_name(channel):
+                channels[channel].add_client(self._client)
+        from util import logger
+        logger.info("channels: %s" % self.client.channels)
+        return 3, map(lambda c: Channel.get_by_name(c).json(), self.client.channels)

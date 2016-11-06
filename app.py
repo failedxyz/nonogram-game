@@ -3,7 +3,7 @@ import json
 from flask import Flask, session, send_file
 from flask_socketio import SocketIO, emit
 
-from channel import Channel
+from objects import Channel
 from config import Config
 from data import clients
 from packet import Packet

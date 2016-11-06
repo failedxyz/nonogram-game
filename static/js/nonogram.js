@@ -18,8 +18,7 @@ var decrypt = function (ciphertext) {
     var decrypted = CryptoJS.AES.decrypt({ciphertext: ciphertext}, CryptoJS.enc.Utf8.parse(connection_key), {
         iv: iv
     });
-    var data = decrypted.toString(CryptoJS.enc.Utf8);
-    return data;
+    return decrypted.toString(CryptoJS.enc.Utf8);
 };
 
 var app = angular.module("nonogram", []);
